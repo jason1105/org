@@ -2,6 +2,9 @@ import {BrowserModule} from "@angular/platform-browser";
 import {NgModule} from "@angular/core";
 import {OrgManagementComponent} from "./org-management.component";
 import {FormsModule} from "@angular/forms";
+import {CtsMeasureSharedModule} from "../../shared/shared.module";
+
+
 /**
  * Created by lv-wei on 2017-05-19.
  */
@@ -11,7 +14,8 @@ import {FormsModule} from "@angular/forms";
   ],
   imports: [
     BrowserModule,
-    FormsModule
+    FormsModule,
+    CtsMeasureSharedModule
   ],
   providers: [],
   bootstrap: [OrgManagementComponent],

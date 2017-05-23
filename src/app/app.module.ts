@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 
 import { AppComponent } from './app.component';
-import {OrgManagementModule} from "./org/org-management.module";
+import {OrgManagementModule} from "./measure/org/org-management.module";
 
 @NgModule({
   declarations: [
