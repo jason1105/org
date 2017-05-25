@@ -108,7 +108,6 @@ export const treeConf = {
     // },
     'core': {
         'animation': 0,
-        'check_callback': true,
         'themes': {'stripes': true},
         'strings': {
             'Loading ...': '加载中 ...'

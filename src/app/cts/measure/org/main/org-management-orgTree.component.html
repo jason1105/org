@@ -1,0 +1,6 @@
+<js-tree-custom [data]="treeData"
+          [plugins]="['contextmenu', 'dnd', 'types','wholerow']"
+          [config]="treeConfig"
+          [pluginEventHandler]="treePluginEvent"
+          (onOrgTreeCreated)="onOrgTreeCreated($event)">
+</js-tree-custom>

@@ -1,0 +1,22 @@
+<div class="row">
+  <div class="col-6">
+    Organization
+    <org-tree></org-tree>
+  </div>
+  <div class="col-6">
+    <div class="">
+      User list
+      <!--<jhi-tree [data]="users" [plugins]="['dnd', 'types','wholerow', 'search']" [conf]="{defaults:{dnd:{always_copy:true}}}">-->
+      <js-tree-custom [data]="users"
+                [plugins]="['dnd', 'types','wholerow', 'search']"
+                [config]="usersTreeConfig"
+                [pluginEventHandler]="usersTreePluginEvent">
+      </js-tree-custom>
+    </div>
+    <div class="">
+      Device list
+      <js-tree-custom [data]="devices" [plugins]="['dnd', 'types','wholerow', 'search']" [config]="devicesTreeConfig">
+      </js-tree-custom>
+    </div>
+  </div>
+</div>

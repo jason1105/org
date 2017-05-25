@@ -1,4 +1,7 @@
-import {AfterViewInit, Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild} from "@angular/core";
+import {
+  AfterViewInit, Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild,
+  ViewEncapsulation
+} from "@angular/core";
 import * as $ from 'jquery';
 import "jstree";
 
@@ -7,25 +10,26 @@ import {isNullOrUndefined} from "util";
 
 
 @Component({
-  selector: 'jhi-tree',
-  templateUrl: './tree.component.html',
-  styleUrls:['~jstree/dist/themes/default/style.css']
+  selector: 'js-tree-custom',
+  templateUrl: './tree.component.html'
+
 })
 export class TreeComponent implements OnInit, OnDestroy, AfterViewInit {
 
 
   currentAccount: any;
 
-  conf: any;
+  @Input() config: any = {};
+  @Input() pluginEventHandler: any[] = [];
+  private conf: any;
   private _data: any;
   @Output() onCheckedChange = new EventEmitter<any>();
+  @Output() onOrgTreeCreated = new EventEmitter<any>();
   private changeObs: any;
   @Input() plugins: any[];
   @Input() haveChecked: any;
   private tree: any;
   @ViewChild("_id") private treeJq: any;
-  // treeJq: any;
-  _version: string;
 
 
   constructor() {
@@ -49,10 +53,17 @@ export class TreeComponent implements OnInit, OnDestroy, AfterViewInit {
 
   }
 
+  // @Input()
+  // set conf(conf) {
+  //   this._conf = Object.assign(conf, treeConf);
+  // }
+
   @Input()
   set data(data) {
     this.treeJq = $(this.treeJq.nativeElement);
     this._data = data;
+
+    this.conf = Object.assign(this.conf, this.config);
     if (!isNullOrUndefined(this._data)) {
       this.conf.core.data = this._data;
       if (this.plugins && this.plugins.length > 0) {
@@ -82,9 +93,22 @@ export class TreeComponent implements OnInit, OnDestroy, AfterViewInit {
           'selected': this.tree.get_selected('full')
         });
       }
-    }).on('ready.jstree', () => {
-      // let treeIns = $('#tree').jstree(true);
+    }).on('ready.jstree', (e) => {
+      // console.log("[EVENT]ready.jstree: ", e)
     });
+
+    if (this.pluginEventHandler) {
+      this.pluginEventHandler.forEach((o, m, n) => {
+        $(document).on(o.event, o.handler);
+      })
+    }
+
+    this.onOrgTreeCreated.emit(this.tree);
+
+    // $(document).on('dnd_stop.vakata', (node) => {
+    //   console.log("[EVENT]: ", node)
+    // });
+
   }
 
   changeChecked(data) {
