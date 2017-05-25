@@ -1,6 +1,6 @@
 import {Component, OnInit} from "@angular/core";
 import {OrgManagementService} from "../org-management.service";
-import {TYPES} from "../common/org-management.types";
+import {TYPES} from "../common/org-management.const";
 /**
  * Created by lv-wei on 2017-05-19.
  */

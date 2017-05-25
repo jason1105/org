@@ -24,11 +24,12 @@
     "angular-ui-tree": "2.22.5",
     "bootstrap": "4.0.0-alpha.6",
     "core-js": "^2.4.1",
-    "rxjs": "^5.1.0",
-    "zone.js": "^0.8.4",
     "echarts": "^3.5.1",
+    "jquery": "3.2.1",
     "jstree": "^3.3.4",
-    "jquery": "3.2.1"
+    "ng2-logger": "^1.0.3",
+    "rxjs": "^5.1.0",
+    "zone.js": "^0.8.4"
   },
   "devDependencies": {
     "@angular/cli": "1.0.3",

@@ -1,3 +1,4 @@
+import {Level} from "ng2-logger";
 /**
  * Created by lv-wei on 2017-05-25.
  */
@@ -15,3 +16,5 @@ export const TYPES: any = {
     }
   }
 };
+
+export const LOG_LEVEL:Level[] = [Level.DATA];
