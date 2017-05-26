@@ -39,23 +39,10 @@ export class OrgManagementComponent implements OnInit {
     handler:(data, element) => {}
   }];
 
-  // config tree of devices list
-  devicesTreeConfig: any = Object.assign(
-    {
-      dnd: {copy: false},
-      core: {
-        check_callback: (operation, node, node_parent, node_position, more) => {
-          console.log("[CHECK_CALLBACK]", node, node_parent);
-          return false;
-        }
-      }
-    }, TYPES);
-
   constructor(private orgManagementService:OrgManagementService){}
 
   ngOnInit(): void {
     this.orgManagementService.getUsers().subscribe((users) => {this.users = users;});
-    this.orgManagementService.getDevices().subscribe((devices) => {this.devices = devices;});
   }
 
 }

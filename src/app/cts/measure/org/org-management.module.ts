@@ -5,6 +5,10 @@ import {OrgManagementComponent} from "./main/org-management.component";
 import {OrgManagementService} from "./org-management.service";
 import {TreeComponent} from "./tree/tree.component";
 import {OrgManagementOrgTreeComponent} from "./main/org-management-orgTree.component";
+import {OrgManagementDeviceTreeComponent} from "./main/org-management-deviceTree.component";
+import {InMemoryWebApiModule} from "angular-in-memory-web-api";
+import {InMemoryDataService} from "./InMemoryData";
+import {TermService} from "../../../entities/term/term.service";
 
 
 /**
@@ -14,13 +18,15 @@ import {OrgManagementOrgTreeComponent} from "./main/org-management-orgTree.compo
   declarations: [
     OrgManagementComponent,
     OrgManagementOrgTreeComponent,
+    OrgManagementDeviceTreeComponent,
     TreeComponent
   ],
   imports: [
     BrowserModule,
-    FormsModule
+    FormsModule,
+    InMemoryWebApiModule.forRoot(InMemoryDataService)
   ],
-  providers: [OrgManagementService],
+  providers: [OrgManagementService, TermService],
   bootstrap: [OrgManagementComponent],
   exports: [OrgManagementComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]

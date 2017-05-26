@@ -7,6 +7,8 @@ import "jstree";
 
 import {treeConf} from "./tree.conf";
 import {isNullOrUndefined} from "util";
+import {Log} from "ng2-logger";
+import {LOG_LEVEL} from "../common/org-management.const";
 
 
 @Component({
@@ -17,10 +19,13 @@ import {isNullOrUndefined} from "util";
 export class TreeComponent implements OnInit, OnDestroy, AfterViewInit {
 
 
+  log = Log.create("TreeComponent", ...LOG_LEVEL);
+
   currentAccount: any;
 
   @Input() config: any = {};
   @Input() pluginEventHandler: any[] = [];
+  @Input() treeEventHandler: any[] = [];
   private conf: any;
   private _data: any;
   @Output() onCheckedChange = new EventEmitter<any>();
@@ -53,13 +58,9 @@ export class TreeComponent implements OnInit, OnDestroy, AfterViewInit {
 
   }
 
-  // @Input()
-  // set conf(conf) {
-  //   this._conf = Object.assign(conf, treeConf);
-  // }
-
   @Input()
   set data(data) {
+
     this.treeJq = $(this.treeJq.nativeElement);
     this._data = data;
 

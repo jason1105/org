@@ -1,5 +1,10 @@
 import {Component, Injectable} from "@angular/core";
 import {Observable} from "rxjs";
+import {TermService} from "../../../entities/term/term.service";
+import {Log} from "ng2-logger";
+import {LOG_LEVEL} from "./common/org-management.const";
+import {Term} from "../../../entities/term/term.model";
+import {OrgTreeModel} from "./common/org-management-orgTree.model";
 /**
  * Created by lv-wei on 2017-05-23.
  */
@@ -7,46 +12,30 @@ import {Observable} from "rxjs";
 @Injectable()
 export class OrgManagementService {
 
+  constructor(private termService: TermService){}
+
+
+  log = Log.create("OrgManagementOrgTreeComponent", ...LOG_LEVEL);
 
   /**
-   * 取得当前用户所能管理的组织结构
+   * 取得当前用户所能管理的组织结构，并将结构转换为jsTree格式
    *
    * @param root
    * @returns {any}
    */
   getTerms(root?: string): Observable<any[]> {
-
-    // todo, for test
-    let terms = [
-      {
-        'text' : '工务段A',
-        'state' : {
-          'opened' : true,
-          'selected' : true
-        },
-        'type': 'org',
-        'children' : [
-          { 'text' : 'Child 1', 'type': 'user'},
-          { 'text' : 'Child 2', 'type': 'device'},
-        ]
-      },
-      {
-        'text' : '工务段B',
-        'type': 'org',
-        'state' : {
-          'opened' : true,
-          'selected' : true
-        },
-        'children' : [
-          { 'text' : 'Child 1' , 'type': 'device'},
-          { 'text' : 'Child 2', 'type': 'device'}
-        ]
-      }
-    ];
-
-    console.log("Find term, result:" , terms);
     return Observable.create(observer => {
-      observer.next(terms);
+      this.termService.query().subscribe(
+        (terms) => {
+          this.log.data("getTerms: ", terms);
+          observer.next(terms.json().map((term: Term) => {
+            let orgTreeModel:OrgTreeModel = new OrgTreeModel();
+            orgTreeModel = {...orgTreeModel, ...term};
+            orgTreeModel.text = orgTreeModel.name;
+            return orgTreeModel;
+          }));
+        }
+      );
     });
   }
 

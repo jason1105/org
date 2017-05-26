@@ -20,33 +20,49 @@ export class OrgManagementOrgTreeComponent implements OnInit {
   tree: any;
   treeConfig: any;
   treePluginEvent: any;
-  treeData:any;
+  treeData:any[];
+  prepare: boolean = false;
 
 
-  check_callback_funcs: any = {
-    "copy_node": (operation, node, node_parent, node_position, more) => {
+  copyAndMove: any = (operation, node, node_parent, node_position, more) => {
 
-      // 移动目标不是组织结构的场合，禁止
-      if (node_parent.type != 'org') {
-        //$("#vakata-dnd").html($("#vakata-dnd").html());
+    // 移动目标不是组织结构的场合，禁止
+    if (node_parent.type != 'org') {
+      //$("#vakata-dnd").html($("#vakata-dnd").html());
+      return false;
+    }
+
+    // 用户或者设备不能在组织节点中重复存在
+    for (var i = 0; i < node_parent.children.length; i++) {
+      var childObj = this.tree.get_node(node_parent.children[i]);
+      console.log("Child of target:", childObj);
+      if ((childObj.type == node.type) && (childObj.text == node.text)) {
+        console.log("[STOP]");
         return false;
       }
-
-      // 用户或者设备不能在组织节点中重复存在
-      for (var i = 0; i < node_parent.children.length; i++) {
-        var childObj = this.tree.get_node(node_parent.children[i]);
-        console.log("Child of target:", childObj);
-        if ((childObj.type == node.type) && (childObj.text == node.text)) {
-          console.log("[STOP]");
-          return false;
-        }
-      }
-
-      return true;
     }
+
+    return true;
+  };
+
+  check_callback_funcs: any = {
+    "copy_node": this.copyAndMove,
+    "move_node": this.copyAndMove
+
   };
 
   ngOnInit(): void {
+    this.initTree();
+
+    this.orgManagementService.getTerms().subscribe((terms) => {
+      this.treeData = [{"text": "123"}];
+      this.log.data("---->", terms);
+      this.treeData = terms;
+      this.prepare = true;
+    });
+  }
+
+  initTree = ():void => {
     this.treeConfig = Object.assign({
       dnd: {
         copy: false,
@@ -69,19 +85,22 @@ export class OrgManagementOrgTreeComponent implements OnInit {
 
     this.treePluginEvent = [{
       event: "dnd_stop.vakata",
-      handler:(event, obj) => {
-        console.log("[EVENT] dnd_stop.vakata", event, obj );
-        let localNode = this.tree.get_node(obj.element.id);
-        console.log(localNode);
+      handler: (event, obj) => {
+        //console.log("[EVENT] dnd_stop.vakata", event, obj );
+        //let localNode = this.tree.get_node(obj.element.id);
+        //console.log(localNode);
       }
     }];
-
-    this.orgManagementService.getTerms().subscribe((terms) => {this.treeData = terms;});
-  }
+  };
 
 
   onOrgTreeCreated: any = (tree: any) => {
     console.log("[EVENT] onOrgTreeCreated", tree);
     this.tree = tree;
   }
+
+  viewTreeData: any = (event) => {
+    this.log.data("[EVENT] 查看组织架构", event);
+    this.log.data(this.tree.get_json());
+  };
 }
