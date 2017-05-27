@@ -23,14 +23,13 @@ export class OrgManagementService {
    * @param root
    * @returns {any}
    */
-  getTerms(root?: string): Observable<any[]> {
+  getTerms(root?: string): Observable<OrgTreeModel[]> {
     return Observable.create(observer => {
       this.termService.query().subscribe(
         (terms) => {
           this.log.data("getTerms: ", terms);
           observer.next(terms.json().map((term: Term) => {
-            let orgTreeModel:OrgTreeModel = new OrgTreeModel();
-            orgTreeModel = {...orgTreeModel, ...term};
+            let orgTreeModel:OrgTreeModel = {...new OrgTreeModel(), ...term};
             orgTreeModel.text = orgTreeModel.name;
             return orgTreeModel;
           }));
@@ -56,7 +55,7 @@ export class OrgManagementService {
   getDevices(root?:string): Observable<any[]> {
 
     // todo
-    let devices = [{"text": "风机动态设备", "type": "device"}, {"text": "风机静态设备", "type": "device"}];
+    let devices = [{"text": "原平端直缓点", "type": "device"}, {"text": "原平端缓圆点", "type": "device"}];
     return Observable.create(observer => {
       observer.next(devices);
     });

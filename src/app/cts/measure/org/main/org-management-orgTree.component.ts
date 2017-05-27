@@ -3,6 +3,7 @@ import {OrgManagementService} from "../org-management.service";
 import * as $ from 'jquery';
 import {Log} from "ng2-logger";
 import {TYPES, LOG_LEVEL} from "../common/org-management.const";
+import {OrgTreeModel} from "../common/org-management-orgTree.model";
 
 
 /**
@@ -21,7 +22,7 @@ export class OrgManagementOrgTreeComponent implements OnInit {
   treeConfig: any;
   treePluginEvent: any;
   treeData:any[];
-  prepare: boolean = false;
+  prepared: boolean = false;
 
 
   copyAndMove: any = (operation, node, node_parent, node_position, more) => {
@@ -53,14 +54,17 @@ export class OrgManagementOrgTreeComponent implements OnInit {
 
   ngOnInit(): void {
     this.initTree();
-
     this.orgManagementService.getTerms().subscribe((terms) => {
-      this.treeData = [{"text": "123"}];
-      this.log.data("---->", terms);
+      this.log.data("Terms:", terms.length);
+
       this.treeData = terms;
-      this.prepare = true;
+      this.prepared = true;
     });
   }
+
+  abc = (event) => {
+    this.log.data("[EVENT] add_org");
+  };
 
   initTree = ():void => {
     this.treeConfig = Object.assign({
@@ -68,6 +72,31 @@ export class OrgManagementOrgTreeComponent implements OnInit {
         copy: false,
         is_draggable: function () {
           return true;
+        }
+      },
+      contextmenu: {
+        items: () => {
+
+          // 取得默认的右键菜单项
+          let tmp = $.jstree.defaults.contextmenu.items();
+
+          // 新建一个org类型的节点
+          tmp.create.action = () => {
+            let ref = this.tree;
+            let sel = ref.get_selected();
+            if (!sel.length) {
+              return false;
+            }
+            sel = sel[0];
+            sel = ref.create_node(sel, {"type": "org"});
+            if (sel) {
+              ref.edit(sel);
+            }
+          };
+
+          // 删除右键菜单中的移动和拷贝
+          delete tmp.ccp;
+          return tmp;
         }
       },
       core: {
@@ -96,11 +125,19 @@ export class OrgManagementOrgTreeComponent implements OnInit {
 
   onOrgTreeCreated: any = (tree: any) => {
     console.log("[EVENT] onOrgTreeCreated", tree);
-    this.tree = tree;
+    this.tree = tree; // 取得当前树
+    //this.log.data("ContextMenu:" + this.tree.defaults.contextmenu);
+    // todo，为每个节点绑定delete和add事件
+    // term.text = term.text + "&nbsp;&nbsp;<i class='fa fa-trash-o aria-hidden='true'' (click)='abc($event)'></i>&nbsp;<i class='fa fa-plus-square-o' aria-hidden='true'></i>";
+  }
+
+  onClickAddTreeNode: any = (event: any) => {
+
   }
 
   viewTreeData: any = (event) => {
     this.log.data("[EVENT] 查看组织架构", event);
     this.log.data(this.tree.get_json());
   };
+
 }
