@@ -1,6 +1,6 @@
 import {Level} from "ng2-logger";
 /**
- * Created by lv-wei on 2017-05-25.
+ * Created by lv-wei on 2017-06-1.
  */
 
 export const TYPES: any = {
@@ -18,3 +18,5 @@ export const TYPES: any = {
 };
 
 export const LOG_LEVEL:Level[] = [Level.DATA];
+export const DEFAULT_NEW_ID:string = "newnodeid";
+

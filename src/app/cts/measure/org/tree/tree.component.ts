@@ -82,22 +82,32 @@ export class TreeComponent implements OnInit, OnDestroy, AfterViewInit {
   initTree() {
     $.jstree.create(this.treeJq, this.conf);
     this.tree = this.treeJq.jstree(true);
-    this.treeJq.on('changed.jstree', () => {
-      if (this.haveChecked) {
-        this.onCheckedChange.emit({
-          'bottomChecked': this.tree.get_bottom_checked('full'),
-          'topChecked': this.tree.get_top_checked('full'),
-          'checked': this.tree.get_checked('full')
-        });
-      } else {
-        this.onCheckedChange.emit({
-          'selected': this.tree.get_selected('full')
-        });
-      }
-    }).on('ready.jstree', (e) => {
-      // console.log("[EVENT]ready.jstree: ", e)
-    });
+    // this.treeJq.on('changed.jstree', () => {
+    //   if (this.haveChecked) {
+    //     this.onCheckedChange.emit({
+    //       'bottomChecked': this.tree.get_bottom_checked('full'),
+    //       'topChecked': this.tree.get_top_checked('full'),
+    //       'checked': this.tree.get_checked('full')
+    //     });
+    //   } else {
+    //     this.onCheckedChange.emit({
+    //       'selected': this.tree.get_selected('full')
+    //     });
+    //   }
+    // }).on('ready.jstree', (e) => {
+    //   // this.log.data("[EVENT]ready.jstree: ", e)
+    // }).on('rename_node.jstree', (event, object) => {
+    //   // this.log.data("[EVENT] rename_node.jstree: ", event, object, this.tree)
+    // });
 
+    // add event handler for tree
+    if (this.treeEventHandler) {
+      this.treeEventHandler.forEach((o, m, n) => {
+        this.treeJq.on(o.event, o.handler);
+      })
+    }
+
+    // add event handler for plugins
     if (this.pluginEventHandler) {
       this.pluginEventHandler.forEach((o, m, n) => {
         $(document).on(o.event, o.handler);

@@ -2,6 +2,7 @@ import {Component, OnInit} from "@angular/core";
 import {Log} from "ng2-logger";
 import {LOG_LEVEL, TYPES} from "../common/org-management.const";
 import {OrgManagementService} from "../org-management.service";
+import {MissionService} from "../common/org-management-missionService.service";
 /**
  * Created by lv-wei on 2017-05-26.
  */
@@ -11,13 +12,27 @@ import {OrgManagementService} from "../org-management.service";
 })
 export class OrgManagementDeviceTreeComponent implements OnInit {
 
-  constructor(private orgManagementService: OrgManagementService){}
+  constructor(
+    private orgManagementService: OrgManagementService,
+    private missionService: MissionService){
+    missionService.missionAnnounced$.subscribe(
+      (msg) => {
+        this.log.data("[MESSAGE]", msg);
+        this.addNode(msg);
+      }
+    )
+  }
+
   log = Log.create("OrgManagementDeviceTreeComponent", ...LOG_LEVEL);
 
   tree: any;
   treeConfig: any;
   treePluginEvent: any;
   treeData:any;
+
+  addNode = (node):void => {
+    this.tree.create_node("#", node);
+  };
 
   // The function use for copy_node and move_node of check_callback
   copyAndMove: any = (operation, node, node_parent, node_position, more) => {
@@ -64,9 +79,8 @@ export class OrgManagementDeviceTreeComponent implements OnInit {
     this.orgManagementService.getDevices().subscribe((devices) => {this.treeData = devices;});
   }
 
-
   onOrgTreeCreated: any = (tree: any) => {
-    console.log("[EVENT] onOrgTreeCreated", tree);
+    console.log("[EVENT]", "onOrgTreeCreated", tree);
     this.tree = tree;
   }
 

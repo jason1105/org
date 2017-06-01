@@ -12,16 +12,19 @@ export class TermService {
     constructor(private http: Http) { }
 
     create(term: Term): Observable<Term> {
+        console.log("Create term:", term);
         const copy = this.convert(term);
-        return this.http.post(this.resourceUrl, copy).map((res: Response) => {
+        return this.http.post(this.resourceUrl, copy).map((res: any) => {
+          res._body = res._body.data;
             return res.json();
         });
     }
 
     update(term: Term): Observable<Term> {
         const copy = this.convert(term);
-        return this.http.put(this.resourceUrl, copy).map((res: Response) => {
-            return res.json();
+        console.log("=======>", copy);
+        return this.http.put(`${this.resourceUrl}/${term.id}`, copy).map((res: any) => {
+            return res;
         });
     }
 

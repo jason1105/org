@@ -9,6 +9,7 @@ import {OrgManagementDeviceTreeComponent} from "./main/org-management-deviceTree
 import {InMemoryWebApiModule} from "angular-in-memory-web-api";
 import {InMemoryDataService} from "./InMemoryData";
 import {TermService} from "../../../entities/term/term.service";
+import {MissionService} from "./common/org-management-missionService.service";
 
 
 /**
@@ -26,7 +27,7 @@ import {TermService} from "../../../entities/term/term.service";
     FormsModule,
     InMemoryWebApiModule.forRoot(InMemoryDataService)
   ],
-  providers: [OrgManagementService, TermService],
+  providers: [OrgManagementService, TermService, MissionService],
   bootstrap: [OrgManagementComponent],
   exports: [OrgManagementComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]

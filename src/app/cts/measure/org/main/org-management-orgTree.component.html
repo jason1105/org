@@ -7,6 +7,7 @@
 <js-tree-custom *ngIf="prepared" [data]="treeData"
                 [plugins]="['contextmenu', 'dnd', 'types','wholerow']"
                 [config]="treeConfig"
+                [treeEventHandler]="treeEvent"
                 [pluginEventHandler]="treePluginEvent"
                 (onOrgTreeCreated)="onOrgTreeCreated($event)">
 </js-tree-custom>

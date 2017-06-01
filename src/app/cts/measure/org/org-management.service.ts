@@ -15,7 +15,7 @@ export class OrgManagementService {
   constructor(private termService: TermService){}
 
 
-  log = Log.create("OrgManagementOrgTreeComponent", ...LOG_LEVEL);
+  log = Log.create("OrgManagementService", ...LOG_LEVEL);
 
   /**
    * 取得当前用户所能管理的组织结构，并将结构转换为jsTree格式
@@ -23,7 +23,7 @@ export class OrgManagementService {
    * @param root
    * @returns {any}
    */
-  getTerms(root?: string): Observable<OrgTreeModel[]> {
+  getOrgs(root?: string): Observable<OrgTreeModel[]> {
     return Observable.create(observer => {
       this.termService.query().subscribe(
         (terms) => {
@@ -38,9 +38,42 @@ export class OrgManagementService {
     });
   }
 
-  updateTermRelation(org:string, obj:string, objtype:string): boolean {
+  updateOrg(node: OrgTreeModel): Observable<OrgTreeModel> {
     // todo
-    return true;
+    // 没有的场合，增加；已有的场合，更新
+
+    return Observable.create(observer => {
+      let orgTreeModel: OrgTreeModel = new OrgTreeModel();
+
+      if (node.id) {
+        this.termService.update(node).subscribe(
+          (term) => {
+            this.log.data("Update term: ", term);
+            orgTreeModel = {...OrgTreeModel, ...term};
+            orgTreeModel.text = orgTreeModel.name;
+            observer.next(orgTreeModel);
+          });
+
+      } else {
+        this.termService.create(node).subscribe(
+          (term) => {
+            this.log.data("Create term: ", term);
+            orgTreeModel = {...OrgTreeModel, ...term};
+            orgTreeModel.text = orgTreeModel.name;
+            observer.next(orgTreeModel);
+          });
+      }
+
+    });
+  }
+
+  delOrg(node: OrgTreeModel): Observable<boolean> {
+    return Observable.create(observer => {
+
+      // todo 删除Term表中的数据
+      // todo 删除TermRelationship表中的数据
+
+    });
   }
 
   getUsers(root?:string): Observable<any[]> {
@@ -60,4 +93,18 @@ export class OrgManagementService {
       observer.next(devices);
     });
   }
+
+  addOrgRelationships(): Observable<boolean>{
+    // todo
+    return null;
+  }
+
+  delOrgRelationships(parentId:string, objectId:string , objectType?:string): Observable<boolean>{
+    this.log.data("[SERVICE]", "delOrgRelationships");
+    // todo
+    return Observable.create((observer) => {
+      observer.next(true);
+    });
+  }
+  // addOrgRelationships(): Observable<boolean>{return null;};
 }
