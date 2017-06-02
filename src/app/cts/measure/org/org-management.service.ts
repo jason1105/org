@@ -5,6 +5,7 @@ import {Log} from "ng2-logger";
 import {LOG_LEVEL} from "./common/org-management.const";
 import {Term} from "../../../entities/term/term.model";
 import {OrgTreeModel} from "./common/org-management-orgTree.model";
+import {TermRelationships} from "../../../entities/term-relationships/term-relationships.model";
 /**
  * Created by lv-wei on 2017-05-23.
  */
@@ -68,11 +69,14 @@ export class OrgManagementService {
   }
 
   delOrg(node: OrgTreeModel): Observable<boolean> {
+    this.log.data("[SERVICE]", "delOrg");
+
     return Observable.create(observer => {
 
       // todo 删除Term表中的数据
       // todo 删除TermRelationship表中的数据
 
+      observer.next(true);
     });
   }
 
@@ -94,13 +98,28 @@ export class OrgManagementService {
     });
   }
 
-  addOrgRelationships(): Observable<boolean>{
+  addOrgRelationships(parentId:string, objectId:string , objectType?:string): Observable<boolean>{
+    this.log.data("[SERVICE]", "addOrgRelationships");
+    let rel = new TermRelationships()
+    rel.appId = "CTS";
+    rel.termId = parentId;
+    rel.objectType = objectType;
+    rel.objectId = objectId;
+
     // todo
-    return null;
+    return Observable.create((observer) => {
+      observer.next(true);
+    });
   }
 
   delOrgRelationships(parentId:string, objectId:string , objectType?:string): Observable<boolean>{
     this.log.data("[SERVICE]", "delOrgRelationships");
+    let rel = new TermRelationships()
+    rel.appId = "CTS";
+    rel.termId = parentId;
+    rel.objectType = objectType;
+    rel.objectId = objectId;
+
     // todo
     return Observable.create((observer) => {
       observer.next(true);
