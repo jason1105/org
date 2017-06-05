@@ -2,10 +2,15 @@ import {Component, Injectable} from "@angular/core";
 import {Observable} from "rxjs";
 import {TermService} from "../../../entities/term/term.service";
 import {Log} from "ng2-logger";
-import {LOG_LEVEL} from "./common/org-management.const";
+import {LOG_LEVEL, APPID} from "./common/org-management.const";
 import {Term} from "../../../entities/term/term.model";
 import {OrgTreeModel} from "./common/org-management-orgTree.model";
 import {TermRelationships} from "../../../entities/term-relationships/term-relationships.model";
+import {TermRelationshipsService} from "../../../entities/term-relationships/term-relationships.service";
+import {UserServiceSpec} from "../../../shared/user/user.service.spec";
+import {User} from "../../../shared/user/user.model";
+import {DeviceServiceSpec} from "../../../entities/device/device.service.spec";
+import {TermRelationshipsServiceSpec} from "../../../entities/term-relationships/term-relationships.service.spec";
 /**
  * Created by lv-wei on 2017-05-23.
  */
@@ -13,7 +18,12 @@ import {TermRelationships} from "../../../entities/term-relationships/term-relat
 @Injectable()
 export class OrgManagementService {
 
-  constructor(private termService: TermService){}
+  constructor(private termService: TermService,
+              private userServiceSpec: UserServiceSpec,
+              private deviceServiceSpec: DeviceServiceSpec,
+              private termRelationshipsServiceSpec: TermRelationshipsServiceSpec
+) {
+}
 
 
   log = Log.create("OrgManagementService", ...LOG_LEVEL);
@@ -26,7 +36,8 @@ export class OrgManagementService {
    */
   getOrgs(root?: string): Observable<OrgTreeModel[]> {
     return Observable.create(observer => {
-      this.termService.query().subscribe(
+      // 取得Term表的数据，用于构建组织树中的组织
+      this.termService.query("").subscribe(
         (terms) => {
           this.log.data("getTerms: ", terms);
           observer.next(terms.json().map((term: Term) => {
@@ -80,9 +91,90 @@ export class OrgManagementService {
     });
   }
 
-  getUsers(root?:string): Observable<any[]> {
 
-    // todo
+  /**
+   * 取得组织节点下的用户或者设备
+   * @param root
+   * @returns {any}
+   */
+  getRelativeLeaf(termId?: string): Observable<OrgTreeModel[]> {
+
+    this.log.data("Term id:", termId);
+
+    return Observable.create((observer) => {
+
+      // 取得该节点下的用户和设备
+      this.termRelationshipsServiceSpec.query(termId).subscribe(
+        (res) => {
+          this.log.data("getTermRelationships: ", res.json().length);
+
+          // 返回由用户或者设备构成的OrgTreeModel列表
+          observer.next(
+
+            // 组装OrgTreeModel列表
+            res.json().map((termRel: TermRelationships) => {
+              this.log.data("TermRelationship:", termRel);
+
+              let text = "";
+              let observable: Observable<OrgTreeModel>;
+
+              let orgTreeModel: OrgTreeModel = new OrgTreeModel();
+              orgTreeModel.id = termRel.objectId;
+              orgTreeModel.parent = termRel.termId;
+              orgTreeModel.type = termRel.objectType;
+
+              // 取得Observable对象
+              if ("user" == termRel.objectType) {
+                observable = this.userServiceSpec.find(termRel.objectId).map((user) => {
+                  orgTreeModel.text = user.firstName + user.lastName;
+                  return orgTreeModel;
+                });
+              } else if ("device" == termRel.objectType) {
+                observable = this.deviceServiceSpec.find(termRel.objectId).map((device) => {
+                  orgTreeModel.text = JSON.parse(device.conf).sysinfo.diname || device.sn;
+                  return orgTreeModel;
+                });
+              } else {
+                this.log.data("Unexcepted leaf's type.", termRel.objectType);
+                orgTreeModel = Observable.of(null);
+              }
+
+              // observable.subscribe((object: any) => {
+              //   this.log.data("Object:", object);
+              //   let orgTreeModel: OrgTreeModel = new OrgTreeModel();
+              //   orgTreeModel.id = termRel.objectId;
+              //   orgTreeModel.parent = termRel.termId;
+              //   orgTreeModel.type = termRel.objectType;
+              //   orgTreeModel.text = "";
+              //
+              //   // 叶子节点是用户的场合
+              //   if ("user" == termRel.objectType) {
+              //     orgTreeModel.text = object.firstName + object.lastName;
+              //   }
+              //   // 叶子节点是设备的场合
+              //   else if ("device" == termRel.objectType) {
+              //     orgTreeModel.text = JSON.parse(object.conf).sysinfo.diname || object.sn;
+              //   }
+              //   // 未知叶子节点类型
+              //   else {
+              //     this.log.data("Unexcepted leaf's type.", termRel.objectType);
+              //     orgTreeModel = null;
+              //   }
+              //
+              //   this.log.data("Translat to TreeNode =>", orgTreeModel);
+              //   return orgTreeModel;
+              // });
+
+            })
+          );
+        }
+      )
+    });
+  }
+
+  getUsers(root?:string): Observable<OrgTreeModel[]> {
+
+    // todo 取得用户名称
     let users = [{"text": "王一", "type": "user"}, {"text": "张二", "type": "user"}];
     return Observable.create(observer => {
       observer.next(users);
@@ -101,7 +193,7 @@ export class OrgManagementService {
   addOrgRelationships(parentId:string, objectId:string , objectType?:string): Observable<boolean>{
     this.log.data("[SERVICE]", "addOrgRelationships");
     let rel = new TermRelationships()
-    rel.appId = "CTS";
+    rel.appId = APPID;
     rel.termId = parentId;
     rel.objectType = objectType;
     rel.objectId = objectId;
@@ -115,7 +207,7 @@ export class OrgManagementService {
   delOrgRelationships(parentId:string, objectId:string , objectType?:string): Observable<boolean>{
     this.log.data("[SERVICE]", "delOrgRelationships");
     let rel = new TermRelationships()
-    rel.appId = "CTS";
+    rel.appId = APPID;
     rel.termId = parentId;
     rel.objectType = objectType;
     rel.objectId = objectId;
