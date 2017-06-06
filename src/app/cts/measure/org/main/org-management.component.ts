@@ -11,38 +11,9 @@ import {TYPES} from "../common/org-management.const";
 })
 export class OrgManagementComponent implements OnInit {
 
-  users: any = [];
-  devices: any = [];
-
-  // ==================tree config====================
-
-  // config tree of user list
-  usersTreeConfig: any = Object.assign({
-      dnd: {
-        always_copy: true,
-        copy: false
-      },
-      core: {
-        check_callback: (operation, node, node_parent, node_position, more) => {
-          // console.log("[CHECK_CALLBACK]", node, node_parent);
-          return false;
-        }
-      }
-    }, TYPES);
-
-  // handle event for plugins
-  usersTreePluginEvent: any = [{
-    event: "dnd_move.vakata",
-    handler: (data, element) => {}
-  },{
-    event: "dnd_stop.vakata",
-    handler:(data, element) => {}
-  }];
-
   constructor(private orgManagementService:OrgManagementService){}
 
   ngOnInit(): void {
-    this.orgManagementService.getUsers().subscribe((users) => {this.users = users;});
   }
 
 }

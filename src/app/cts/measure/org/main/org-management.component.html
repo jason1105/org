@@ -6,12 +6,7 @@
   <div class="col-6">
     <div class="">
       User list
-      <!--<jhi-tree [data]="users" [plugins]="['dnd', 'types','wholerow', 'search']" [conf]="{defaults:{dnd:{always_copy:true}}}">-->
-      <js-tree-custom [data]="users"
-                [plugins]="['dnd', 'types','wholerow', 'search']"
-                [config]="usersTreeConfig"
-                [pluginEventHandler]="usersTreePluginEvent">
-      </js-tree-custom>
+      <user-tree></user-tree>
     </div>
     <div class="">
       Device list
