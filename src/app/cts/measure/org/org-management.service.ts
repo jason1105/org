@@ -98,74 +98,46 @@ export class OrgManagementService {
    * @returns {any}
    */
   getRelativeLeaf(termId?: string): Observable<OrgTreeModel[]> {
+    this.log.data("getRelativeLeaf", "Term id:", termId);
+    return this.termRelationshipsServiceSpec.query(termId)
+      .map((res) => {
+        this.log.data("getRelativeLeaf", "response:", res);
+        return res.json()
+      })
+      .map((termRels, index) => {
+        return termRels.map((termRel) => {
+          this.log.data("======1>", termRel)
 
-    this.log.data("Term id:", termId);
-    var nodes:OrgTreeModel[] = [];
+          let orgTreeModel: OrgTreeModel = new OrgTreeModel();
+          orgTreeModel.id = termRel.objectId;
+          orgTreeModel.parent = termRel.termId;
+          orgTreeModel.type = termRel.objectType;
 
-    return Observable.create((observer) => {
-
-      // 取得该节点下的用户和设备
-      this.termRelationshipsServiceSpec.query(termId).subscribe(
-        (res) => {
-          this.log.data("getTermRelationships: ", res.json().length);
-
-          // 返回由用户或者设备构成的OrgTreeModel列表
-
-          let observable = Observable.empty();
-
-            // 组装OrgTreeModel列表
-          observable = Observable.forkJoin(
-            res.json().map((termRel: TermRelationships) => {
-              this.log.data("TermRelationship:", termRel);
-
-              let text = "";
-              let observable: Observable<OrgTreeModel>;
-
-              let orgTreeModel: OrgTreeModel = new OrgTreeModel();
-              orgTreeModel.id = termRel.objectId;
-              orgTreeModel.parent = termRel.termId;
-              orgTreeModel.type = termRel.objectType;
-
-              // 取得Observable对象
-              if ("user" == termRel.objectType) {
-                observable = this.userServiceSpec.find(termRel.objectId).map((user) => {
-                  this.log.data("===user", user);
-                  orgTreeModel.text = user.firstName + user.lastName;
-                  return orgTreeModel;
-                });
-              } else if ("device" == termRel.objectType) {
-                observable = this.deviceServiceSpec.find(termRel.objectId).map((device) => {
-                  orgTreeModel.text = JSON.parse(device.conf).sysinfo.diname || device.sn;
-                  return orgTreeModel;
-                });
-              } else {
-                this.log.data("Unexcepted leaf's type.", termRel.objectType);
-                orgTreeModel = Observable.of(null);
-              }
-
-              return observable;
-            })
-          )
-
-          observable.subscribe(
-            (node) => {
-              if (node) {
-                this.log.data("===", node);
-                nodes.push(node);
-              }
-            },
-            error => {
-              this.log.data(error);
-              observer.next(nodes);
-            },
-            () => {
-              observer.next(nodes);
+          // 取得Observable对象
+          if ("user" == termRel.objectType) {
+            return this.userServiceSpec.find(termRel.objectId).map((user) => {
+              this.log.data("===user", user);
+              orgTreeModel.text = user.firstName + user.lastName;
+              return orgTreeModel;
             });
+          } else if ("device" == termRel.objectType) {
+            return this.deviceServiceSpec.find(termRel.objectId).map((device) => {
+              orgTreeModel.text = JSON.parse(device.conf).sysinfo.diname || device.sn;
+              return orgTreeModel;
+            });
+          } else {
+            this.log.data("Unexcepted leaf's type.", termRel.objectType);
+            return Observable.of(null);
+          }
+        });
+      })
+      .map((obsArray, index) => {
+        return Observable.forkJoin(obsArray);
+      })
+      .flatMap((x) => {
+        return x;
+      });
 
-
-        }
-      )
-    });
   }
 
   getUsers(root?:string): Observable<OrgTreeModel[]> {
