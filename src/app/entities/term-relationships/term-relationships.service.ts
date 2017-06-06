@@ -2,30 +2,31 @@ import { Injectable } from '@angular/core';
 import { Http, Response, URLSearchParams, BaseRequestOptions } from '@angular/http';
 import { Observable } from 'rxjs/Rx';
 
-import { Term } from './term.model';
+import { TermRelationships } from './term-relationships.model';
 
 @Injectable()
-export class TermService {
+export class TermRelationshipsService {
 
-    private resourceUrl = 'api/terms'; // todo 'ctsorganization/api/terms'
+    private resourceUrl = 'api/termRelationships';
 
     constructor(private http: Http) { }
 
-    create(term: Term): Observable<Term> {
-        const copy = this.convert(term);
-        return this.http.post(this.resourceUrl, copy).map((res: Response) => {
+    create(termRelationships: TermRelationships): Observable<TermRelationships> {
+        const copy = this.convert(termRelationships);
+        return this.http.post(this.resourceUrl, copy).map((res: any) => {
+            res._body = res._body.data;
             return res.json();
         });
     }
 
-    update(term: Term): Observable<Term> {
-        const copy = this.convert(term);
-        return this.http.put(this.resourceUrl, copy).map((res: Response) => {
-            return res.json();
+    update(termRelationships: TermRelationships): Observable<TermRelationships> {
+        const copy = this.convert(termRelationships);
+        return this.http.put(`${this.resourceUrl}/${termRelationships.id}`, copy).map((res: any) => {
+          return res;
         });
     }
 
-    find(id: number): Observable<Term> {
+    find(id: number): Observable<TermRelationships> {
         return this.http.get(`${this.resourceUrl}/${id}`).map((res: Response) => {
             return res.json();
         });
@@ -56,8 +57,8 @@ export class TermService {
         return options;
     }
 
-    private convert(term: Term): Term {
-        const copy: Term = Object.assign({}, term);
+    private convert(termRelationships: TermRelationships): TermRelationships {
+        const copy: TermRelationships = Object.assign({}, termRelationships);
         return copy;
     }
 }

@@ -11,6 +11,7 @@ import {UserServiceSpec} from "../../../shared/user/user.service.spec";
 import {User} from "../../../shared/user/user.model";
 import {DeviceServiceSpec} from "../../../entities/device/device.service.spec";
 import {TermRelationshipsServiceSpec} from "../../../entities/term-relationships/term-relationships.service.spec";
+import {Response} from "@angular/http";
 /**
  * Created by lv-wei on 2017-05-23.
  */
@@ -21,7 +22,8 @@ export class OrgManagementService {
   constructor(private termService: TermService,
               private userServiceSpec: UserServiceSpec,
               private deviceServiceSpec: DeviceServiceSpec,
-              private termRelationshipsServiceSpec: TermRelationshipsServiceSpec
+              private termRelationshipsServiceSpec: TermRelationshipsServiceSpec,
+              private termRelationshipsService : TermRelationshipsService
 ) {
 }
 
@@ -35,19 +37,20 @@ export class OrgManagementService {
    * @returns {any}
    */
   getOrgs(root?: string): Observable<OrgTreeModel[]> {
-    return Observable.create(observer => {
-      // 取得Term表的数据，用于构建组织树中的组织
-      this.termService.query("").subscribe(
-        (terms) => {
-          this.log.data("getTerms: ", terms);
-          observer.next(terms.json().map((term: Term) => {
-            let orgTreeModel:OrgTreeModel = {...new OrgTreeModel(), ...term};
-            orgTreeModel.text = orgTreeModel.name;
-            return orgTreeModel;
-          }));
-        }
-      );
-    });
+    // 取得Term表的数据，用于构建组织树中的组织
+    return this.termService.query("")
+      .map((res: Response) => {
+        this.log.data("getTerms: ", res);
+        return res.json();
+      })
+      .map((terms: Term[]) => {
+        return terms.map((term) => {
+          let orgTreeModel: OrgTreeModel = {...new OrgTreeModel(), ...term};
+          orgTreeModel.text = orgTreeModel.name;
+          return orgTreeModel;
+        });
+      })
+      ;
   }
 
   updateOrg(node: OrgTreeModel): Observable<OrgTreeModel> {
@@ -91,7 +94,6 @@ export class OrgManagementService {
     });
   }
 
-
   /**
    * 取得组织节点下的用户或者设备
    * @param root
@@ -99,29 +101,29 @@ export class OrgManagementService {
    */
   getRelativeLeaf(termId?: string): Observable<OrgTreeModel[]> {
     this.log.data("getRelativeLeaf", "Term id:", termId);
-    return this.termRelationshipsServiceSpec.query(termId)
+    return this.termRelationshipsService.query()
       .map((res) => {
         this.log.data("getRelativeLeaf", "response:", res);
         return res.json()
       })
       .map((termRels, index) => {
         return termRels.map((termRel) => {
-          this.log.data("======1>", termRel)
-
+          // this.log.data("Leaf", termRel)
           let orgTreeModel: OrgTreeModel = new OrgTreeModel();
-          orgTreeModel.id = termRel.objectId;
+          orgTreeModel.id = termRel.id;
           orgTreeModel.parent = termRel.termId;
           orgTreeModel.type = termRel.objectType;
 
           // 取得Observable对象
           if ("user" == termRel.objectType) {
             return this.userServiceSpec.find(termRel.objectId).map((user) => {
-              this.log.data("===user", user);
+              this.log.data("User", user);
               orgTreeModel.text = user.firstName + user.lastName;
               return orgTreeModel;
             });
           } else if ("device" == termRel.objectType) {
             return this.deviceServiceSpec.find(termRel.objectId).map((device) => {
+              this.log.data("device", device);
               orgTreeModel.text = JSON.parse(device.conf).sysinfo.diname || device.sn;
               return orgTreeModel;
             });

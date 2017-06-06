@@ -8,6 +8,7 @@ import {
 import {OrgTreeModel} from "../common/org-management-orgTree.model";
 import {CREATE_CONTEXT_ITEMS_FUNCTION} from "./org-management-orgTree.conf";
 import {MissionService} from "../common/org-management-missionService.service";
+import {Observable} from "rxjs";
 
 
 /**
@@ -76,27 +77,47 @@ export class OrgManagementOrgTreeComponent implements OnInit {
     "move_node": this.copyAndMoveNode,
   };
 
+  prepare = (): Observable<boolean> => {
+    // 读取组织结构中的数据
+
+    return Observable.create((observer) => {
+      this.orgManagementService.getOrgs().subscribe((terms) => {
+        this.log.data("Terms:", terms.length);
+        this.treeData = terms;
+      });
+
+
+    })
+  };
+
   ngOnInit(): void {
 
     // 初始化树
     this.initTree();
 
-    // 读取组织结构中的数据
-    this.orgManagementService.getOrgs().subscribe((terms) => {
-      this.log.data("Terms:", terms.length);
+    // // 读取组织结构，一次读取全部数据（如果数据很大，可以考虑异步读取）
+    let a = Observable.forkJoin(
+      this.orgManagementService.getOrgs(),
+      this.orgManagementService.getRelativeLeaf())
+      .map((items: any[]) => {
+        // items [[],[]]
+        return items.reduce((pre, cur, idx, arr) => {
+          return pre.concat(cur);
+        });
+      })
+      .subscribe(
+        (nodes) => {
+          this.log.data("-------------Terms:", nodes);
 
-      // 赋值给树
-      this.treeData = terms;
-
-      // 准备完毕，可以显示组件了
-      this.prepared = true;
-    });
+          // 赋值给树
+          this.treeData = nodes;
+          //
+          // 准备完毕，可以显示组件了
+          this.prepared = true;
+        }
+      );
 
   }
-
-  abc = (event) => {
-    this.log.data("[EVENT] add_org");
-  };
 
   /**
    * 初始化树组件
@@ -150,7 +171,7 @@ export class OrgManagementOrgTreeComponent implements OnInit {
     },{
       event: "changed.jstree",
       handler: (e, obj) => {
-        this.log.data("[EVENT]", "changed.jstree");
+        this.log.data("[EVENT]", "changed.jstree", obj);
       }
 
     },{
@@ -263,6 +284,11 @@ export class OrgManagementOrgTreeComponent implements OnInit {
             }
           );
         }
+      }
+    }, {
+      event: "open_node.jstree",
+      handler: (e, obj) => {
+        this.log.data("[EVENT]", "open_node.jstree", e, obj);
       }
     }];
   };

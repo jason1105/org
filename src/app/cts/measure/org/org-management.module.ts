@@ -10,6 +10,11 @@ import {InMemoryWebApiModule} from "angular-in-memory-web-api";
 import {InMemoryDataService} from "./InMemoryData";
 import {TermService} from "../../../entities/term/term.service";
 import {MissionService} from "./common/org-management-missionService.service";
+import {TermRelationshipsService} from "../../../entities/term-relationships/term-relationships.service";
+import {UserService} from "../../../shared/user/user.service";
+import {UserServiceSpec} from "../../../shared/user/user.service.spec";
+import {DeviceServiceSpec} from "../../../entities/device/device.service.spec";
+import {TermRelationshipsServiceSpec} from "../../../entities/term-relationships/term-relationships.service.spec";
 
 
 /**
@@ -27,9 +32,17 @@ import {MissionService} from "./common/org-management-missionService.service";
     FormsModule,
     InMemoryWebApiModule.forRoot(InMemoryDataService)
   ],
-  providers: [OrgManagementService, TermService, MissionService],
+  providers: [OrgManagementService,
+    TermService,
+    MissionService,
+    TermRelationshipsService,
+    UserService,
+    UserServiceSpec,
+    DeviceServiceSpec,
+    TermRelationshipsServiceSpec],
   bootstrap: [OrgManagementComponent],
   exports: [OrgManagementComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class OrgManagementModule { }
+export class OrgManagementModule {
+}

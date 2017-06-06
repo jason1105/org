@@ -1,8 +1,9 @@
-import {Component, OnInit} from "@angular/core";
+import {Component, OnInit, OnDestroy} from "@angular/core";
 import {Log} from "ng2-logger";
 import {LOG_LEVEL, TYPES} from "../common/org-management.const";
 import {OrgManagementService} from "../org-management.service";
 import {MissionService} from "../common/org-management-missionService.service";
+import {Subscription} from "rxjs";
 /**
  * Created by lv-wei on 2017-05-26.
  */
@@ -10,15 +11,15 @@ import {MissionService} from "../common/org-management-missionService.service";
   selector: 'device-tree',
   templateUrl: 'org-management-deviceTree.component.html'
 })
-export class OrgManagementDeviceTreeComponent implements OnInit {
+export class OrgManagementDeviceTreeComponent implements OnInit, OnDestroy {
 
-  constructor(
-    private orgManagementService: OrgManagementService,
-    private missionService: MissionService){
-    missionService.missionAnnounced$.subscribe(
-      (msg) => {
-        this.log.data("[MESSAGE]", msg);
-        this.addNode(msg);
+  constructor(private orgManagementService: OrgManagementService,
+              private missionService: MissionService) {
+    // missionAnnounced保存的是组织结构树中删除的设备类型的节点，这些节点需要放回
+    this.announced = missionService.missionAnnounced$.subscribe(
+      (node) => {
+        this.log.data("[MESSAGE]", node);
+        this.addNode(node);
       }
     )
   }
@@ -29,6 +30,7 @@ export class OrgManagementDeviceTreeComponent implements OnInit {
   treeConfig: any;
   treePluginEvent: any;
   treeData:any;
+  announced:Subscription;
 
   addNode = (node):void => {
     this.tree.create_node("#", node);
@@ -82,6 +84,10 @@ export class OrgManagementDeviceTreeComponent implements OnInit {
   onOrgTreeCreated: any = (tree: any) => {
     console.log("[EVENT]", "onOrgTreeCreated", tree);
     this.tree = tree;
+  }
+
+  ngOnDestroy(): void {
+    this.announced.unsubscribe();
   }
 
 }
