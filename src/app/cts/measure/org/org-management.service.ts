@@ -100,6 +100,7 @@ export class OrgManagementService {
   getRelativeLeaf(termId?: string): Observable<OrgTreeModel[]> {
 
     this.log.data("Term id:", termId);
+    var nodes:OrgTreeModel[] = [];
 
     return Observable.create((observer) => {
 
@@ -109,9 +110,11 @@ export class OrgManagementService {
           this.log.data("getTermRelationships: ", res.json().length);
 
           // 返回由用户或者设备构成的OrgTreeModel列表
-          observer.next(
+
+          let observable = Observable.empty();
 
             // 组装OrgTreeModel列表
+          observable = Observable.forkJoin(
             res.json().map((termRel: TermRelationships) => {
               this.log.data("TermRelationship:", termRel);
 
@@ -126,6 +129,7 @@ export class OrgManagementService {
               // 取得Observable对象
               if ("user" == termRel.objectType) {
                 observable = this.userServiceSpec.find(termRel.objectId).map((user) => {
+                  this.log.data("===user", user);
                   orgTreeModel.text = user.firstName + user.lastName;
                   return orgTreeModel;
                 });
@@ -139,34 +143,26 @@ export class OrgManagementService {
                 orgTreeModel = Observable.of(null);
               }
 
-              // observable.subscribe((object: any) => {
-              //   this.log.data("Object:", object);
-              //   let orgTreeModel: OrgTreeModel = new OrgTreeModel();
-              //   orgTreeModel.id = termRel.objectId;
-              //   orgTreeModel.parent = termRel.termId;
-              //   orgTreeModel.type = termRel.objectType;
-              //   orgTreeModel.text = "";
-              //
-              //   // 叶子节点是用户的场合
-              //   if ("user" == termRel.objectType) {
-              //     orgTreeModel.text = object.firstName + object.lastName;
-              //   }
-              //   // 叶子节点是设备的场合
-              //   else if ("device" == termRel.objectType) {
-              //     orgTreeModel.text = JSON.parse(object.conf).sysinfo.diname || object.sn;
-              //   }
-              //   // 未知叶子节点类型
-              //   else {
-              //     this.log.data("Unexcepted leaf's type.", termRel.objectType);
-              //     orgTreeModel = null;
-              //   }
-              //
-              //   this.log.data("Translat to TreeNode =>", orgTreeModel);
-              //   return orgTreeModel;
-              // });
-
+              return observable;
             })
-          );
+          )
+
+          observable.subscribe(
+            (node) => {
+              if (node) {
+                this.log.data("===", node);
+                nodes.push(node);
+              }
+            },
+            error => {
+              this.log.data(error);
+              observer.next(nodes);
+            },
+            () => {
+              observer.next(nodes);
+            });
+
+
         }
       )
     });
