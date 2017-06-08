@@ -21,4 +21,4 @@ export const TYPES: any = {
 
 export const LOG_LEVEL:Level[] = [Level.DATA];
 export const DEFAULT_NEW_ID:string = "newnodeid";
-
+export const ORG_TOPIC = "orgtree";

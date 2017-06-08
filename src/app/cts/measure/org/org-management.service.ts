@@ -4,7 +4,7 @@ import {TermService} from "../../../entities/term/term.service";
 import {Log} from "ng2-logger";
 import {LOG_LEVEL, APPID} from "./common/org-management.const";
 import {Term} from "../../../entities/term/term.model";
-import {OrgTreeModel} from "./common/org-management-orgTree.model";
+import {OrgTreeModel, NodeType} from "./common/org-management-orgTree.model";
 import {TermRelationships} from "../../../entities/term-relationships/term-relationships.model";
 import {TermRelationshipsService} from "../../../entities/term-relationships/term-relationships.service";
 import {UserServiceSpec} from "../../../shared/user/user.service.spec";
@@ -121,13 +121,13 @@ export class OrgManagementService {
           orgTreeModel.type = termRel.objectType;
 
           // 取得Observable对象
-          if ("user" == termRel.objectType) {
+          if (NodeType.USER == termRel.objectType) {
             return this.userServiceSpec.find(termRel.objectId).map((user) => {
               this.log.data("User", user);
               orgTreeModel.text = user.firstName + user.lastName;
               return orgTreeModel;
             });
-          } else if ("device" == termRel.objectType) {
+          } else if (NodeType.DEVICE == termRel.objectType) {
             return this.deviceServiceSpec.find(termRel.objectId).map((device) => {
               this.log.data("device", device);
               orgTreeModel.text = JSON.parse(device.conf).sysinfo.diname || device.sn;
@@ -163,7 +163,7 @@ export class OrgManagementService {
           let orgTreeModel: OrgTreeModel = {...new OrgTreeModel(), ...user};
           orgTreeModel.text = user.firstName + user.lastName;
           orgTreeModel.parent = "#";
-          orgTreeModel.type = "user";
+          orgTreeModel.type = NodeType.USER;
           return orgTreeModel;
         });
       });
@@ -180,10 +180,11 @@ export class OrgManagementService {
       })
       .map((devices: Device[]) => {
         return devices.map((device) => {
+
           let orgTreeModel: OrgTreeModel = {...new OrgTreeModel(), ...device};
           orgTreeModel.text = JSON.parse(device.conf).sysinfo.diname || device.sn;
           orgTreeModel.parent = "#";
-          orgTreeModel.type = "device";
+          orgTreeModel.type = NodeType.DEVICE;
           orgTreeModel.objId = device.id;
           return orgTreeModel;
         });

@@ -3,9 +3,9 @@ import {OrgManagementService} from "../org-management.service";
 import * as $ from 'jquery';
 import {Log} from "ng2-logger";
 import {
-  TYPES, LOG_LEVEL, DEFAULT_NEW_ID
+  TYPES, LOG_LEVEL, DEFAULT_NEW_ID, ORG_TOPIC
 } from "../common/org-management.const";
-import {OrgTreeModel} from "../common/org-management-orgTree.model";
+import {OrgTreeModel, NodeType} from "../common/org-management-orgTree.model";
 import {CREATE_CONTEXT_ITEMS_FUNCTION} from "./org-management-orgTree.conf";
 import {MissionService} from "../common/org-management-missionService.service";
 import {Observable} from "rxjs";
@@ -48,7 +48,7 @@ export class OrgManagementOrgTreeComponent implements OnInit {
   copyAndMoveNode: any = (operation, node, node_parent, node_position, more) => {
 
     // 移动目标不是组织结构的场合，禁止
-    if (node_parent.type != 'org') {
+    if (node_parent.type != NodeType.ORGANIZATION) {
       //$("#vakata-dnd").html($("#vakata-dnd").html());
       return false;
     }
@@ -104,7 +104,7 @@ export class OrgManagementOrgTreeComponent implements OnInit {
           //   }
           // })
 
-          this.missionService.sendMsg("orgtree", nodes.filter((x) => {return x.type ==  "device";}));
+          this.missionService.sendMsg(ORG_TOPIC, nodes.filter((x) => {return x.type ==  NodeType.DEVICE;}));
 
           //
           // 准备完毕，可以显示组件了
@@ -175,7 +175,7 @@ export class OrgManagementOrgTreeComponent implements OnInit {
         var oldParent = obj.old_parent;
 
         // 组织节点的场合，更新Term表
-        if ("org" == node.type) {
+        if (NodeType.ORGANIZATION == node.type) {
           this.log.data("This is org node.", node);
           var newNode = {...new OrgTreeModel(), ...node};
           this.orgManagementService.updateOrg(newNode).subscribe(
@@ -191,7 +191,7 @@ export class OrgManagementOrgTreeComponent implements OnInit {
           );
         }
         // todo 用户和设备的场合，更新TermRelationship表
-        else if (("user" == node.type) || ("device" == node.type)) {
+        else if ((NodeType.USER == node.type) || (NodeType.DEVICE == node.type)) {
           this.log.data("This is user/device.", node);
 
           this.orgManagementService.delOrgRelationships(oldParent, node.id, node.type).subscribe(
@@ -238,7 +238,7 @@ export class OrgManagementOrgTreeComponent implements OnInit {
 
         var selNode = obj.node;
 
-        if ("org" == selNode.type) {
+        if (NodeType.ORGANIZATION == selNode.type) {
           this.log.data("It's a org node.", selNode);
           // 调用service删除后台Term数据，删除所有与该节点关联的TermRelationship数据
           this.orgManagementService.delOrg(selNode).subscribe(
@@ -252,7 +252,7 @@ export class OrgManagementOrgTreeComponent implements OnInit {
               this.log.data("Delete failed.")
             }
           );
-        } else if ("device" == selNode.type) {
+        } else if (NodeType.DEVICE == selNode.type) {
           // 设备的场合：调用service删除后台TermRelationship数据，并且移动节点数据到设备树。
           this.orgManagementService.delOrgRelationships(selNode.parent, selNode.id).subscribe(
             (result) => {
@@ -264,7 +264,7 @@ export class OrgManagementOrgTreeComponent implements OnInit {
               this.log.data("Delete failed.")
             }
           );
-        } else if ("user" == selNode.type) {
+        } else if (NodeType.USER == selNode.type) {
           // 调用service删除后台TermRelationship数据
           this.orgManagementService.delOrgRelationships(selNode.parent, selNode.id).subscribe(
             (result) => {

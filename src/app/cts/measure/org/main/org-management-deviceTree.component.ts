@@ -1,6 +1,6 @@
 import {Component, OnInit, OnDestroy} from "@angular/core";
 import {Log} from "ng2-logger";
-import {LOG_LEVEL, TYPES} from "../common/org-management.const";
+import {LOG_LEVEL, TYPES, ORG_TOPIC} from "../common/org-management.const";
 import {OrgManagementService} from "../org-management.service";
 import {MissionService} from "../common/org-management-missionService.service";
 import {Subscription} from "rxjs";
@@ -62,6 +62,7 @@ export class OrgManagementDeviceTreeComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.announced.unsubscribe();
+    this.missionService.unsubscribe(ORG_TOPIC);
   }
 
   private initTreeConf: () => void = function(): void {
@@ -96,7 +97,7 @@ export class OrgManagementDeviceTreeComponent implements OnInit, OnDestroy {
 
   private initTreeData: () => void = (): void => {
 
-    this.missionService.subscribe("orgtree", (orgDevs) => {
+    this.missionService.subscribe(ORG_TOPIC, (orgDevs) => {
 
       this.orgManagementService.getDevices().subscribe((devices: any[]) => {
         this.log.data("initTreeData()", "Get nodes:", devices);

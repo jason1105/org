@@ -1,4 +1,4 @@
-import {OrgTreeModel} from "../common/org-management-orgTree.model";
+import {OrgTreeModel, NodeType} from "../common/org-management-orgTree.model";
 import * as $ from 'jquery';
 
 /**
@@ -26,7 +26,7 @@ export const CREATE_CONTEXT_ITEMS_FUNCTION: any = function () {
     newNode.name = "New Node";
     newNode.text = newNode.name;
     newNode.appId = "CTS";
-    newNode.type = "org";
+    newNode.type = NodeType.ORGANIZATION;
 
     // 将新节点插入数据库
     this.orgManagementService.updateOrg(newNode).subscribe(

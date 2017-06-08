@@ -12,3 +12,9 @@ export class OrgTreeModel extends Term {
   }
 
 }
+
+export class NodeType {
+  public static ORGANIZATION = "org";
+  public static DEVICE = "device";
+  public static USER = "user";
+}
