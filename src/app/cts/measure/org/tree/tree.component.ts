@@ -34,7 +34,8 @@ export class TreeComponent implements OnInit, OnDestroy, AfterViewInit {
   @Input() plugins: any[];
   @Input() haveChecked: any;
   private tree: any;
-  @ViewChild("_id") private treeJq: any;
+  @ViewChild("_id") private treeJqDiv: any;
+  private treeJq: any;
 
 
   constructor() {
@@ -61,7 +62,7 @@ export class TreeComponent implements OnInit, OnDestroy, AfterViewInit {
   @Input()
   set data(data) {
 
-    this.treeJq = $(this.treeJq.nativeElement);
+    this.treeJq = $(this.treeJqDiv.nativeElement);
     this._data = data;
 
     this.conf = Object.assign(this.conf, this.config);

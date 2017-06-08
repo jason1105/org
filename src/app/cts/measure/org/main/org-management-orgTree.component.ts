@@ -114,6 +114,10 @@ export class OrgManagementOrgTreeComponent implements OnInit {
 
   }
 
+  destroy = (): void => {
+    this.tree.destroy();
+  }
+
   /**
    * 初始化树组件
    */
@@ -291,9 +295,6 @@ export class OrgManagementOrgTreeComponent implements OnInit {
   onOrgTreeCreated: any = (tree: any) => {
     this.log.data("[EVENT]", "onOrgTreeCreated", tree);
     this.tree = tree; // 取得当前树
-
-
-
   }
 
   viewTreeData: any = (event) => {

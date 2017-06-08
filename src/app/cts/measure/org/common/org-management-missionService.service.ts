@@ -59,7 +59,7 @@ class Topic {
   private _observable = function(_this){
     return Observable.create(function (observer) {
       _this._observer = observer;
-    });
+    }).share();
   }(this);
 
   subscribe = function (handler) {

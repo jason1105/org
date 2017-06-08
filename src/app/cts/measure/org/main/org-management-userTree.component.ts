@@ -1,7 +1,8 @@
 import {OnInit, OnDestroy, Component} from "@angular/core";
-import {TYPES, LOG_LEVEL} from "../common/org-management.const";
+import {TYPES, LOG_LEVEL, ORG_TOPIC} from "../common/org-management.const";
 import {OrgManagementService} from "../org-management.service";
 import {Log} from "ng2-logger";
+import {MissionService} from "../common/org-management-missionService.service";
 /**
  * Created by lv-wei on 2017-06-06.
  */
@@ -28,7 +29,8 @@ export class OrgManagementUserTreeComponent implements OnInit, OnDestroy {
     handler:(data, element) => {}
   }];
 
-  constructor(private orgManagementService:OrgManagementService){}
+  constructor(private orgManagementService:OrgManagementService,
+              private missionService: MissionService){}
 
   ngOnInit(): void {
     this.initTreeConf();
@@ -55,12 +57,13 @@ export class OrgManagementUserTreeComponent implements OnInit, OnDestroy {
   }
 
   private initTreeData: () => void = (): void => {
-
-    this.orgManagementService.getUsers().subscribe((users) => {
-      this.log.data("initTreeData()", "Get nodes:", users);
-      this.treeData = users;
-      // 准备完毕，可以显示组件了
-      this.prepared = true;
+    this.missionService.subscribe(ORG_TOPIC, (orgDevs) => {
+      this.orgManagementService.getUsers().subscribe((users) => {
+        this.log.data("initTreeData()", "Get nodes:", users);
+        this.treeData = users;
+        // 准备完毕，可以显示组件了
+        this.prepared = true;
+      });
     });
   }
 

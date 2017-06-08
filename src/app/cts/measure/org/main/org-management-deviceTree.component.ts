@@ -109,6 +109,7 @@ export class OrgManagementDeviceTreeComponent implements OnInit, OnDestroy {
         });
 
         this.treeData = devices;
+
         // 准备完毕，可以显示组件了
         this.prepared = true;
       });
