@@ -114,10 +114,6 @@ export class OrgManagementOrgTreeComponent implements OnInit {
 
   }
 
-  destroy = (): void => {
-    this.tree.destroy();
-  }
-
   /**
    * 初始化树组件
    */
