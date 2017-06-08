@@ -13,6 +13,8 @@ import {Subscription} from "rxjs";
 })
 export class OrgManagementDeviceTreeComponent implements OnInit, OnDestroy {
 
+  log = Log.create("OrgManagementDeviceTreeComponent", ...LOG_LEVEL);
+
   constructor(private orgManagementService: OrgManagementService,
               private missionService: MissionService) {
     // missionAnnounced保存的是组织结构树中删除的设备类型的节点，这些节点需要放回
@@ -22,15 +24,16 @@ export class OrgManagementDeviceTreeComponent implements OnInit, OnDestroy {
         this.addNode(node);
       }
     )
+
   }
 
-  log = Log.create("OrgManagementDeviceTreeComponent", ...LOG_LEVEL);
 
   tree: any;
   treeConfig: any;
   treePluginEvent: any;
   treeData:any;
   announced:Subscription;
+  prepared: boolean = false;
 
   addNode = (node):void => {
     this.tree.create_node("#", node);
@@ -51,6 +54,17 @@ export class OrgManagementDeviceTreeComponent implements OnInit, OnDestroy {
   };
 
   ngOnInit(): void {
+
+
+    this.initTreeConf();
+    this.initTreeData();
+  }
+
+  ngOnDestroy(): void {
+    this.announced.unsubscribe();
+  }
+
+  private initTreeConf: () => void = function(): void {
     this.treeConfig = Object.assign({
       dnd: {
         copy: false,
@@ -78,16 +92,30 @@ export class OrgManagementDeviceTreeComponent implements OnInit, OnDestroy {
       }
     }];
 
-    this.orgManagementService.getDevices().subscribe((devices) => {this.treeData = devices;});
-  }
+  };
 
-  onOrgTreeCreated: any = (tree: any) => {
+  private initTreeData: () => void = (): void => {
+
+    this.missionService.subscribe("orgtree", (orgDevs) => {
+
+      this.orgManagementService.getDevices().subscribe((devices: any[]) => {
+        this.log.data("initTreeData()", "Get nodes:", devices);
+
+        orgDevs.forEach((orgDev) => {
+          devices = devices.filter((v) => {
+            return v.objId != orgDev.objId;
+          });
+        });
+
+        this.treeData = devices;
+        // 准备完毕，可以显示组件了
+        this.prepared = true;
+      });
+    });
+  };
+
+  private onOrgTreeCreated: any = (tree: any) => {
     console.log("[EVENT]", "onOrgTreeCreated", tree);
     this.tree = tree;
   }
-
-  ngOnDestroy(): void {
-    this.announced.unsubscribe();
-  }
-
 }

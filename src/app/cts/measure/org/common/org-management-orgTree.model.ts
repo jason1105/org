@@ -4,7 +4,10 @@ import {Term} from "../../../../entities/term/term.model";
  */
 export class OrgTreeModel extends Term {
 
-  constructor(public text?: string) {
+  constructor(
+    public text?: string,
+    public objId?: string
+  ) {
     super();
   }
 

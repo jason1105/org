@@ -1,4 +1,4 @@
-<js-tree-custom [data]="treeData"
+<js-tree-custom *ngIf="prepared" [data]="treeData"
                 [plugins]="['dnd', 'types','wholerow', 'search']"
                 [config]="treeConfig"
                 (onOrgTreeCreated)="onOrgTreeCreated($event)">

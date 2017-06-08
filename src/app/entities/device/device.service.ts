@@ -2,34 +2,30 @@ import { Injectable } from '@angular/core';
 import { Http, Response, URLSearchParams, BaseRequestOptions } from '@angular/http';
 import { Observable } from 'rxjs/Rx';
 
-import { Term } from './term.model';
+import { Device } from './device.model';
 
 @Injectable()
-export class TermService {
+export class DeviceService {
 
-    private resourceUrl = 'api/terms'; // todo 'ctsorganization/api/terms'
+    private resourceUrl = 'api/devices'; // todo 'ctsdevice/api/devices'
 
     constructor(private http: Http) { }
 
-    create(term: Term): Observable<Term> {
-        const copy = this.convert(term);
+    create(device: Device): Observable<Device> {
+        const copy = this.convert(device);
         return this.http.post(this.resourceUrl, copy).map((res: Response) => {
             return res.json();
         });
     }
 
-    update(term: Term): Observable<Term> {
-        const copy = this.convert(term);
-        //todo 下面的是jhipster代码
-        // return this.http.put(this.resourceUrl, copy).map((res: Response) => {
-        //   return res.json();
-        // });
-        return this.http.put(`${this.resourceUrl}/${term.id}`, copy).map((res: Response) => {
+    update(device: Device): Observable<Device> {
+        const copy = this.convert(device);
+        return this.http.put(this.resourceUrl, copy).map((res: Response) => {
             return res.json();
         });
     }
 
-    find(id: number): Observable<Term> {
+    find(id: number): Observable<Device> {
         return this.http.get(`${this.resourceUrl}/${id}`).map((res: Response) => {
             return res.json();
         });
@@ -60,8 +56,8 @@ export class TermService {
         return options;
     }
 
-    private convert(term: Term): Term {
-        const copy: Term = Object.assign({}, term);
+    private convert(device: Device): Device {
+        const copy: Device = Object.assign({}, device);
         return copy;
     }
 }

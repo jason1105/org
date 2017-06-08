@@ -77,28 +77,13 @@ export class OrgManagementOrgTreeComponent implements OnInit {
     "move_node": this.copyAndMoveNode,
   };
 
-  prepare = (): Observable<boolean> => {
-    // 读取组织结构中的数据
-
-    return Observable.create((observer) => {
-      this.orgManagementService.getOrgs().subscribe((terms) => {
-        this.log.data("Terms:", terms.length);
-        this.treeData = terms;
-      });
-
-
-    })
-  };
-
   ngOnInit(): void {
 
     // 初始化树
     this.initTree();
 
     // // 读取组织结构，一次读取全部数据（如果数据很大，可以考虑异步读取）
-    let a = Observable.forkJoin(
-      this.orgManagementService.getOrgs(),
-      this.orgManagementService.getRelativeLeaf())
+    Observable.forkJoin(this.orgManagementService.getOrgs(), this.orgManagementService.getRelativeLeaf())
       .map((items: any[]) => {
         // items [[],[]]
         return items.reduce((pre, cur, idx, arr) => {
@@ -111,6 +96,16 @@ export class OrgManagementOrgTreeComponent implements OnInit {
 
           // 赋值给树
           this.treeData = nodes;
+
+          // let devices = []
+          // this.tree.settings.core.data.forEach((ele) => {
+          //   if ("device"== ele.type) {
+          //     devices.push(ele.objId);
+          //   }
+          // })
+
+          this.missionService.sendMsg("orgtree", nodes.filter((x) => {return x.type ==  "device";}));
+
           //
           // 准备完毕，可以显示组件了
           this.prepared = true;
@@ -159,11 +154,6 @@ export class OrgManagementOrgTreeComponent implements OnInit {
      * @type {[{event: string; handler: ((e, obj)=>any)},...]}
      */
     this.treeEvent = [{
-      event: "create_node.jstree",
-      handler: (e, obj) => {
-        this.log.data('[EVENT]', "create_node.jstree");
-      }
-    },{
       event: "rename_node.jstree",
       handler: (e, obj) => {
         this.log.data("[EVENT]", "rename_node.jstree");
@@ -196,6 +186,7 @@ export class OrgManagementOrgTreeComponent implements OnInit {
             (error) => {
               // todo
               this.log.data("Backend update error.", error);
+              alert(error);
             }
           );
         }
@@ -300,10 +291,13 @@ export class OrgManagementOrgTreeComponent implements OnInit {
   onOrgTreeCreated: any = (tree: any) => {
     this.log.data("[EVENT]", "onOrgTreeCreated", tree);
     this.tree = tree; // 取得当前树
+
+
+
   }
 
   viewTreeData: any = (event) => {
-    this.log.data("[EVENT]", "查看组织架构", event, this.tree.get_json());
+    this.log.data("[EVENT]", "查看组织架构", event, this.tree.settings.core.data);
   };
 
 }

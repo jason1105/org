@@ -16,6 +16,7 @@ import {UserServiceSpec} from "../../../shared/user/user.service.spec";
 import {DeviceServiceSpec} from "../../../entities/device/device.service.spec";
 import {TermRelationshipsServiceSpec} from "../../../entities/term-relationships/term-relationships.service.spec";
 import {OrgManagementUserTreeComponent} from "./main/org-management-userTree.component";
+import {DeviceService} from "../../../entities/device/device.service";
 
 
 /**
@@ -40,6 +41,7 @@ import {OrgManagementUserTreeComponent} from "./main/org-management-userTree.com
     TermRelationshipsService,
     UserService,
     UserServiceSpec,
+    DeviceService,
     DeviceServiceSpec,
     TermRelationshipsServiceSpec],
   bootstrap: [OrgManagementComponent],

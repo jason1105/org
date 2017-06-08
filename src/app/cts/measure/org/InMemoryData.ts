@@ -39,7 +39,7 @@ export class InMemoryDataService implements InMemoryDbService {
     let devices: Device = [
       {id: "device1", sn: "A1B0A001", conf: "{\"sysinfo\":{\"diname\":\"原平端直缓点\"}}"},
       {id: "device2", sn: "A1B0A002", conf: "{\"sysinfo\":{\"diname\":\"原平端缓圆点\"}}"},
-      {id: "device3", sn: "A1B0A003", conf: "{\"sysinfo\":{\"diname\":\"测试设备\"}}"},
+      {id: "device3", sn: "A1B0A003", conf: "{\"sysinfo\":{\"diname\":\"测试设备03\"}}"},
     ];
 
     return {terms, termRelationships, users, devices};
